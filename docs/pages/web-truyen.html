@@ -7,10 +7,19 @@
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="./web-truyen.html">Bíp Bíp Truyện</a>
+        <nav class="header-nav">
+          <a class="active" href="./web-truyen.html">Truyện</a>
+          <a href="./cms.html">CMS</a>
+        </nav>
+      </div>
+    </header>
+
     <main class="container">
-      <a href="../index.html">← Về trang chọn</a>
-      <h1>Web Truyện (HTML)</h1>
-      <p class="muted">Dữ liệu lấy từ localStorage do trang CMS tạo.</p>
+      <h1>Đọc truyện mới mỗi ngày</h1>
+      <p class="muted">UI static bản GitHub Pages, đồng bộ dữ liệu với CMS page.</p>
 
       <div class="toolbar">
         <div style="min-width: 220px; flex: 1">
@@ -21,6 +30,7 @@
         </div>
       </div>
 
+      <h2 class="section-title">Danh sách truyện</h2>
       <section id="storyList" class="list"></section>
     </main>
     <script src="./assets/web-truyen.js"></script>

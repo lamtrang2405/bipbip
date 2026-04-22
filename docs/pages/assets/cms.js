@@ -56,6 +56,53 @@ function renderStories() {
   });
 }
 
+function renderByCategory() {
+  const root = document.getElementById("cmsCategoryList");
+  const stories = readStories();
+  if (!stories.length) {
+    root.innerHTML = '<div class="item muted">Chưa có dữ liệu.</div>';
+    return;
+  }
+
+  const grouped = stories.reduce((acc, s) => {
+    const key = s.category || "Chưa có danh mục";
+    acc[key] = acc[key] || [];
+    acc[key].push(s);
+    return acc;
+  }, {});
+
+  const blocks = Object.keys(grouped)
+    .sort()
+    .map((cat) => {
+      const items = grouped[cat]
+        .map((s) => `<li>${s.title} · ${s.author || "—"} · ${s.totalChapters || "—"} chương</li>`)
+        .join("");
+      return `
+        <article class="item">
+          <h3>${cat}</h3>
+          <ul>${items}</ul>
+        </article>
+      `;
+    });
+  root.innerHTML = blocks.join("");
+}
+
+function initTabs() {
+  const tabs = Array.from(document.querySelectorAll(".cms-tab"));
+  const panels = Array.from(document.querySelectorAll(".cms-panel"));
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const key = tab.getAttribute("data-tab");
+      if (!key) return;
+      tabs.forEach((t) => t.classList.remove("is-active"));
+      tab.classList.add("is-active");
+      panels.forEach((p) => {
+        p.classList.toggle("is-active", p.getAttribute("data-panel") === key);
+      });
+    });
+  });
+}
+
 document.getElementById("storyForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const form = e.currentTarget;
@@ -82,6 +129,9 @@ document.getElementById("storyForm").addEventListener("submit", (e) => {
   writeStories(stories);
   form.reset();
   renderStories();
+  renderByCategory();
 });
 
 renderStories();
+renderByCategory();
+initTabs();

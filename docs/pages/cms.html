@@ -7,44 +7,68 @@
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="./web-truyen.html">Bíp Bíp Truyện</a>
+        <nav class="header-nav">
+          <a href="./web-truyen.html">Truyện</a>
+          <a class="active" href="./cms.html">CMS</a>
+        </nav>
+      </div>
+    </header>
+
     <main class="container">
-      <a href="../index.html">← Về trang chọn</a>
-      <h1>CMS (HTML)</h1>
-      <p class="muted">Quản lý dữ liệu lưu cục bộ trên trình duyệt.</p>
+      <h1>Admin CMS</h1>
+      <p class="muted">Bản static GitHub Pages mô phỏng UI quản lý local.</p>
 
-      <h2 class="section-title">Tạo truyện</h2>
-      <form id="storyForm" class="item">
-        <div class="row">
-          <div><input name="title" placeholder="Tiêu đề" required /></div>
-          <div><input name="author" placeholder="Tác giả" required /></div>
-        </div>
-        <div class="row" style="margin-top: 10px">
-          <div><input name="category" placeholder="Danh mục" /></div>
-          <div><input name="tags" placeholder="Thể loại (ngăn cách dấu phẩy)" /></div>
-        </div>
-        <div style="margin-top: 10px">
-          <textarea name="summary" rows="4" placeholder="Tóm tắt" required></textarea>
-        </div>
-        <div class="row" style="margin-top: 10px">
-          <div>
-            <select name="status">
-              <option value="ongoing">Trạng thái: Đang ra</option>
-              <option value="completed">Trạng thái: Hoàn thành</option>
-              <option value="hiatus">Trạng thái: Tạm ngưng</option>
-            </select>
+      <div class="cms-tabs" role="tablist" aria-label="CMS tabs">
+        <button class="cms-tab is-active" data-tab="create">Đẩy nội dung</button>
+        <button class="cms-tab" data-tab="category">Quản lý theo danh mục</button>
+        <button class="cms-tab" data-tab="stories">Quản lý theo truyện</button>
+      </div>
+
+      <section class="cms-panel is-active" data-panel="create">
+        <h2 class="section-title">Tạo truyện</h2>
+        <form id="storyForm" class="item">
+          <div class="row">
+            <div><input name="title" placeholder="Tiêu đề" required /></div>
+            <div><input name="author" placeholder="Tác giả" required /></div>
           </div>
-          <div><input name="totalChapters" type="number" min="1" placeholder="Tổng chương" /></div>
-        </div>
-        <div style="margin-top: 10px">
-          <input name="thumbnail" placeholder="Thumbnail URL" />
-        </div>
-        <div style="margin-top: 10px">
-          <button type="submit">Lưu truyện</button>
-        </div>
-      </form>
+          <div class="row" style="margin-top: 10px">
+            <div><input name="category" placeholder="Danh mục" /></div>
+            <div><input name="tags" placeholder="Thể loại (ngăn cách dấu phẩy)" /></div>
+          </div>
+          <div style="margin-top: 10px">
+            <textarea name="summary" rows="4" placeholder="Tóm tắt" required></textarea>
+          </div>
+          <div class="row" style="margin-top: 10px">
+            <div>
+              <select name="status">
+                <option value="ongoing">Trạng thái: Đang ra</option>
+                <option value="completed">Trạng thái: Hoàn thành</option>
+                <option value="hiatus">Trạng thái: Tạm ngưng</option>
+              </select>
+            </div>
+            <div><input name="totalChapters" type="number" min="1" placeholder="Tổng chương" /></div>
+          </div>
+          <div style="margin-top: 10px">
+            <input name="thumbnail" placeholder="Thumbnail URL" />
+          </div>
+          <div style="margin-top: 10px">
+            <button type="submit">Lưu truyện</button>
+          </div>
+        </form>
+      </section>
 
-      <h2 class="section-title">Danh sách truyện</h2>
-      <section id="cmsStoryList" class="list"></section>
+      <section class="cms-panel" data-panel="category">
+        <h2 class="section-title">Dữ liệu theo danh mục</h2>
+        <section id="cmsCategoryList" class="list"></section>
+      </section>
+
+      <section class="cms-panel" data-panel="stories">
+        <h2 class="section-title">Danh sách truyện</h2>
+        <section id="cmsStoryList" class="list"></section>
+      </section>
     </main>
     <script src="./assets/cms.js"></script>
   </body>

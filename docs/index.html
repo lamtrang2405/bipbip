@@ -2,48 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=./pages/web-truyen.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BipBip UI Preview</title>
-    <link rel="stylesheet" href="./pages/assets/styles.css" />
+    <title>BipBip</title>
   </head>
   <body>
-    <main class="container preview-shell">
-      <header class="preview-header">
-        <h1>BipBip UI Preview</h1>
-        <p class="muted">Switch between the live static UI pages.</p>
-      </header>
-
-      <nav class="preview-tabs" aria-label="UI tabs">
-        <button class="tab-btn is-active" data-target="./pages/web-truyen.html">Web UI</button>
-        <button class="tab-btn" data-target="./pages/cms.html">CMS UI</button>
-        <a class="open-btn" href="./pages/web-truyen.html" target="_blank" rel="noreferrer">Open in new tab</a>
-      </nav>
-
-      <section class="preview-frame-wrap">
-        <iframe
-          id="previewFrame"
-          title="BipBip UI"
-          src="./pages/web-truyen.html"
-          loading="eager"
-        ></iframe>
-      </section>
-    </main>
-
-    <script>
-      const frame = document.getElementById("previewFrame");
-      const buttons = Array.from(document.querySelectorAll(".tab-btn"));
-      const openBtn = document.querySelector(".open-btn");
-
-      buttons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const target = button.getAttribute("data-target");
-          if (!target) return;
-          frame.src = target;
-          if (openBtn) openBtn.href = target;
-          buttons.forEach((b) => b.classList.remove("is-active"));
-          button.classList.add("is-active");
-        });
-      });
-    </script>
+    <p>Redirecting to Web UI...</p>
   </body>
 </html>
