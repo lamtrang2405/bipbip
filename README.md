@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NangTho Studio (Author-First MVP)
 
-## Getting Started
+Web reading product similar to meokammap, optimized for personal story publishing first.
 
-First, run the development server:
+## Stack
+- Next.js App Router + TypeScript + Tailwind CSS.
+- Supabase (Postgres/Auth/RLS-ready).
+- Vercel deployment target.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Local setup
+1. Copy env:
+   - `cp .env.example .env.local`
+2. Update `.env.local` values (Supabase + admin password).
+3. Run dev server:
+   - `npm run dev`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## MVP routes
+- `/` home (featured/new/full)
+- `/stories` listing + tag filter
+- `/stories/[slug]` story detail
+- `/stories/[slug]/[chapterSlug]` chapter reader
+- `/search` search stories
+- `/admin/login` admin authentication
+- `/admin` admin CMS (create story with multi-chapter input, upload thumbnail, excel import)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## CMS storage
+- Story/chapter data created in CMS is persisted to `data/stories.json`.
+- Uploaded covers are stored in `public/uploads/covers`.
+- Story metadata supported in CMS: title, author, summary, tags, completion status, total chapters, thumbnail, category.
+- Excel import available at `/admin`:
+  - Download template: `/admin/template/excel`
+  - Upload `.xlsx/.xls` with columns: `title, author, summary, tags, completionStatus, totalChaptersPlanned, thumbnailUrl, category, chapterTitle, chapterContent`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Supabase schema and RLS
+- SQL file: `supabase/schema.sql`
+- Includes tables: stories, chapters, tags, story_tags, story_metrics_daily
+- Includes RLS for:
+  - Public read only for published content
+  - Admin full CRUD using JWT role `admin`
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Docs
+- PRD: `docs/PRD-MVP.md`
+- Go-live checklist: `docs/go-live-checklist.md`

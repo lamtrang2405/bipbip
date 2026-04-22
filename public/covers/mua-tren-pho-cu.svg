@@ -1,0 +1,6 @@
+<svg width="600" height="840" viewBox="0 0 600 840" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="840" fill="#F59E0B"/>
+  <rect x="40" y="40" width="520" height="760" rx="20" fill="#FFFBEB"/>
+  <text x="300" y="360" text-anchor="middle" font-size="48" fill="#92400E" font-family="Arial">Mua Tren</text>
+  <text x="300" y="420" text-anchor="middle" font-size="48" fill="#92400E" font-family="Arial">Pho Cu</text>
+</svg>
