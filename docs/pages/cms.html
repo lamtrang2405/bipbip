@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMS - BipBip</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <a href="../index.html">← Về trang chọn</a>
+      <h1>CMS (HTML)</h1>
+      <p class="muted">Quản lý dữ liệu lưu cục bộ trên trình duyệt.</p>
+
+      <h2 class="section-title">Tạo truyện</h2>
+      <form id="storyForm" class="item">
+        <div class="row">
+          <div><input name="title" placeholder="Tiêu đề" required /></div>
+          <div><input name="author" placeholder="Tác giả" required /></div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <div><input name="category" placeholder="Danh mục" /></div>
+          <div><input name="tags" placeholder="Thể loại (ngăn cách dấu phẩy)" /></div>
+        </div>
+        <div style="margin-top: 10px">
+          <textarea name="summary" rows="4" placeholder="Tóm tắt" required></textarea>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <div>
+            <select name="status">
+              <option value="ongoing">Trạng thái: Đang ra</option>
+              <option value="completed">Trạng thái: Hoàn thành</option>
+              <option value="hiatus">Trạng thái: Tạm ngưng</option>
+            </select>
+          </div>
+          <div><input name="totalChapters" type="number" min="1" placeholder="Tổng chương" /></div>
+        </div>
+        <div style="margin-top: 10px">
+          <input name="thumbnail" placeholder="Thumbnail URL" />
+        </div>
+        <div style="margin-top: 10px">
+          <button type="submit">Lưu truyện</button>
+        </div>
+      </form>
+
+      <h2 class="section-title">Danh sách truyện</h2>
+      <section id="cmsStoryList" class="list"></section>
+    </main>
+    <script src="./assets/cms.js"></script>
+  </body>
+</html>

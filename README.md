@@ -41,3 +41,8 @@ Web reading product similar to meokammap, optimized for personal story publishin
 ## Docs
 - PRD: `docs/PRD-MVP.md`
 - Go-live checklist: `docs/go-live-checklist.md`
+
+## GitHub Pages HTML
+- Entry: `docs/index.html`
+- Story page: `docs/pages/web-truyen.html`
+- CMS page: `docs/pages/cms.html`

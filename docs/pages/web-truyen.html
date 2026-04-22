@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Truyện - BipBip</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <a href="../index.html">← Về trang chọn</a>
+      <h1>Web Truyện (HTML)</h1>
+      <p class="muted">Dữ liệu lấy từ localStorage do trang CMS tạo.</p>
+
+      <div class="toolbar">
+        <div style="min-width: 220px; flex: 1">
+          <select id="categoryFilter"></select>
+        </div>
+        <div style="min-width: 240px; flex: 2">
+          <input id="searchInput" placeholder="Tìm tiêu đề, tác giả, thể loại..." />
+        </div>
+      </div>
+
+      <section id="storyList" class="list"></section>
+    </main>
+    <script src="./assets/web-truyen.js"></script>
+  </body>
+</html>
