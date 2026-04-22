@@ -107,3 +107,59 @@ button {
 .danger {
   background: #dc2626;
 }
+
+.preview-shell {
+  max-width: 1280px;
+}
+
+.preview-header h1 {
+  margin: 0 0 8px;
+}
+
+.preview-header p {
+  margin: 0;
+}
+
+.preview-tabs {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.tab-btn {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.tab-btn.is-active {
+  background: var(--brand);
+  color: #fff;
+}
+
+.open-btn {
+  margin-left: auto;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+}
+
+.preview-frame-wrap {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+#previewFrame {
+  display: block;
+  width: 100%;
+  min-height: 78vh;
+  border: 0;
+  background: #fff;
+}
