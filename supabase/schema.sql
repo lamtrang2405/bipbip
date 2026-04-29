@@ -3,15 +3,24 @@ create extension if not exists pgcrypto;
 create table if not exists public.stories (
   id uuid primary key default gen_random_uuid(),
   title text not null,
+  author text,
   slug text unique not null,
   summary text not null,
   cover_url text,
   status text not null check (status in ('draft', 'published')) default 'draft',
+  completion_status text not null check (completion_status in ('ongoing', 'completed', 'hiatus')) default 'ongoing',
+  category text,
+  total_chapters_planned int,
   is_featured boolean not null default false,
   published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.stories add column if not exists author text;
+alter table public.stories add column if not exists completion_status text not null default 'ongoing';
+alter table public.stories add column if not exists category text;
+alter table public.stories add column if not exists total_chapters_planned int;
 
 create table if not exists public.chapters (
   id uuid primary key default gen_random_uuid(),

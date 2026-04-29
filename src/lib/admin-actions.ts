@@ -1,7 +1,5 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { redirect } from "next/navigation";
 import * as XLSX from "xlsx";
 import {
@@ -14,6 +12,7 @@ import {
 } from "@/lib/repository";
 import { slugify } from "@/lib/slugify";
 import { loginAdmin, logoutAdmin } from "@/lib/auth";
+import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { CompletionStatus } from "@/types/story";
 
 const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -26,14 +25,25 @@ async function saveCoverImage(file: File, storySlug: string) {
   if (!file || file.size === 0) return null;
   if (!ACCEPTED_IMAGE_TYPES.has(file.type)) return null;
 
+  const supabase = getSupabaseAdminClient();
+  if (!supabase) return null;
+
   const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
   const fileName = `${storySlug}-${Date.now()}.${ext}`;
-  const targetDir = path.join(process.cwd(), "public", "uploads", "covers");
-  await mkdir(targetDir, { recursive: true });
+  const objectPath = `stories/${fileName}`;
 
   const bytes = await file.arrayBuffer();
-  await writeFile(path.join(targetDir, fileName), Buffer.from(bytes));
-  return `/uploads/covers/${fileName}`;
+  const { error } = await supabase.storage
+    .from("covers")
+    .upload(objectPath, Buffer.from(bytes), {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (error) return null;
+
+  const { data } = supabase.storage.from("covers").getPublicUrl(objectPath);
+  return data.publicUrl ?? null;
 }
 
 export async function loginAction(formData: FormData) {

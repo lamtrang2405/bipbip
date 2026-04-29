@@ -5,14 +5,22 @@ Web reading product similar to meokammap, optimized for personal story publishin
 ## Stack
 - Next.js App Router + TypeScript + Tailwind CSS.
 - Supabase (Postgres/Auth/RLS-ready).
-- Vercel deployment target.
+- Railway/Cloudflare deployment target (Docker-first).
 
 ## Local setup
 1. Copy env:
    - `cp .env.example .env.local`
-2. Update `.env.local` values (Supabase + admin password).
+2. Update `.env.local` values (Supabase, admin password, site URL).
 3. Run dev server:
    - `npm run dev`
+
+## Production deployment (Railway/Docker)
+1. Build image:
+   - `docker build -t bipbip-web .`
+2. Run container:
+   - `docker run --rm -p 3000:3000 --env-file .env.local bipbip-web`
+3. Health check:
+   - `GET /api/health`
 
 ## MVP routes
 - `/` home (featured/new/full)

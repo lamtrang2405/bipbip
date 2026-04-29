@@ -8,8 +8,13 @@ export async function isAdminAuthenticated() {
 }
 
 export async function loginAdmin(password: string) {
-  const expected = process.env.ADMIN_PASSWORD ?? "changeme";
-  if (password !== expected) return false;
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) {
+    if (process.env.NODE_ENV === "production") return false;
+    if (password !== "changeme") return false;
+  } else if (password !== expected) {
+    return false;
+  }
 
   const cookieStore = await cookies();
   cookieStore.set(ADMIN_COOKIE, "1", {
