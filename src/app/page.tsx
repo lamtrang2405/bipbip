@@ -4,6 +4,8 @@ import { StoryCard } from "@/components/story-card";
 import { getHomeData } from "@/lib/repository";
 import { AutoPageTracker } from "@/components/scripts/trackers";
 
+export const revalidate = 60;
+
 export default async function Home() {
   const { featured, newest, full } = await getHomeData();
   return (

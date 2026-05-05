@@ -9,6 +9,8 @@ type StoryDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const revalidate = 60;
+
 export default async function StoryDetailPage({ params }: StoryDetailPageProps) {
   const { slug } = await params;
   const story = await getStoryBySlug(slug);

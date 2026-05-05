@@ -10,6 +10,8 @@ type ChapterPageProps = {
   params: Promise<{ slug: string; chapterSlug: string }>;
 };
 
+export const revalidate = 60;
+
 export default async function ChapterPage({ params }: ChapterPageProps) {
   const { slug, chapterSlug } = await params;
   const data = await getChapterBySlug(slug, chapterSlug);
