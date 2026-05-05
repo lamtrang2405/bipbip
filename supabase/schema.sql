@@ -17,11 +17,6 @@ create table if not exists public.stories (
   updated_at timestamptz not null default now()
 );
 
-alter table public.stories add column if not exists author text;
-alter table public.stories add column if not exists completion_status text not null default 'ongoing';
-alter table public.stories add column if not exists category text;
-alter table public.stories add column if not exists total_chapters_planned int;
-
 create table if not exists public.chapters (
   id uuid primary key default gen_random_uuid(),
   story_id uuid not null references public.stories(id) on delete cascade,
@@ -59,11 +54,34 @@ create table if not exists public.story_metrics_daily (
   unique (story_id, metric_date)
 );
 
+-- Function to automatically update the updated_at column
+create or replace function public.handle_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+-- Add triggers for stories and chapters
+create trigger set_stories_updated_at
+  before update on public.stories
+  for each row execute function public.handle_updated_at();
+
+create trigger set_chapters_updated_at
+  before update on public.chapters
+  for each row execute function public.handle_updated_at();
+
+-- Enable RLS on all tables
 alter table public.stories enable row level security;
 alter table public.chapters enable row level security;
 alter table public.tags enable row level security;
 alter table public.story_tags enable row level security;
+alter table public.story_metrics_daily enable row level security;
 
+-- RLS Policies
+
+-- Public Read Policies
 create policy "Public can read published stories"
   on public.stories
   for select
@@ -72,7 +90,7 @@ create policy "Public can read published stories"
 create policy "Public can read published chapters"
   on public.chapters
   for select
-  using (is_published = true);
+  using (is_published = true AND story_id IN (select id from public.stories where status = 'published'));
 
 create policy "Public can read tags"
   on public.tags
@@ -82,8 +100,14 @@ create policy "Public can read tags"
 create policy "Public can read story tags"
   on public.story_tags
   for select
-  using (true);
+  using (story_id IN (select id from public.stories where status = 'published'));
 
+create policy "Public can read story metrics"
+  on public.story_metrics_daily
+  for select
+  using (story_id IN (select id from public.stories where status = 'published'));
+
+-- Admin Policies (Just in case frontend auth is used later)
 create policy "Admin full access stories"
   on public.stories
   for all
@@ -104,6 +128,12 @@ create policy "Admin full access tags"
 
 create policy "Admin full access story tags"
   on public.story_tags
+  for all
+  using (auth.jwt() ->> 'role' = 'admin')
+  with check (auth.jwt() ->> 'role' = 'admin');
+
+create policy "Admin full access story metrics"
+  on public.story_metrics_daily
   for all
   using (auth.jwt() ->> 'role' = 'admin')
   with check (auth.jwt() ->> 'role' = 'admin');
