@@ -1,5 +1,5 @@
 import { slugify } from "@/lib/slugify";
-import { getSupabaseAdminClient, getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdminClient, getSupabasePublicClient } from "@/lib/supabase/server";
 import { Chapter, CompletionStatus, StoryWithChapters, Tag } from "@/types/story";
 
 type StoryRow = {
@@ -80,7 +80,7 @@ function mapChapterRow(row: ChapterRow): Chapter {
 }
 
 async function loadStoriesForPublic() {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabasePublicClient();
   if (!supabase) return [] as StoryWithChapters[];
 
   const { data: storyRows } = await supabase
