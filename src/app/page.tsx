@@ -2,11 +2,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { StoryCard } from "@/components/story-card";
 import { getHomeData } from "@/lib/repository";
+import { AutoPageTracker } from "@/components/scripts/trackers";
 
 export default async function Home() {
   const { featured, newest, full } = await getHomeData();
   return (
     <div className="min-h-screen">
+      <AutoPageTracker />
       <SiteHeader />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-3 py-6 sm:px-4 sm:py-8">
         <section className="space-y-4">
