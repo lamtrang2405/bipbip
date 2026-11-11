@@ -4,7 +4,8 @@ import {
   addChapterToStoryAction,
   deleteChapterAction,
 } from "@/lib/admin-actions";
-import { isAdminAuthenticated } from "@/lib/auth";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { requireAdmin } from "@/lib/auth";
 import { getStoryByIdForAdmin } from "@/lib/repository";
 
 type Props = {
@@ -13,8 +14,7 @@ type Props = {
 };
 
 export default async function AdminStoryChaptersPage({ params, searchParams }: Props) {
-  const authed = await isAdminAuthenticated();
-  if (!authed) redirect("/admin/login");
+  await requireAdmin();
 
   const { storyId } = await params;
   const q = await searchParams;
@@ -40,14 +40,22 @@ export default async function AdminStoryChaptersPage({ params, searchParams }: P
             /{story.slug} · {chapters.length} chương
           </p>
         </div>
-        <Link
-          href={`/stories/${story.slug}`}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600"
-        >
-          Xem trên web
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/admin/stories/${story.id}/edit`}
+            className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200"
+          >
+            Sửa thông tin truyện
+          </Link>
+          <Link
+            href={`/stories/${story.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600"
+          >
+            Xem trên web
+          </Link>
+        </div>
       </div>
 
       {q.created === "chapter" ? (
@@ -101,12 +109,12 @@ export default async function AdminStoryChaptersPage({ params, searchParams }: P
                   <form action={deleteChapterAction}>
                     <input type="hidden" name="storyId" value={story.id} />
                     <input type="hidden" name="chapterId" value={ch.id} />
-                    <button
-                      type="submit"
+                    <ConfirmSubmitButton
+                      message={`Xóa chương ${ch.chapterNumber}: "${ch.title}"?`}
                       className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
                     >
                       Xóa
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </li>

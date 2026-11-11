@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { MEOKAMMAP_THE_LOAI } from "@/lib/meokammap-genres";
 
-export function SiteHeaderControls() {
+export function SiteHeaderControls({ genres }: { genres: string[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -59,7 +58,7 @@ export function SiteHeaderControls() {
             >
               Tất cả
             </Link>
-            {MEOKAMMAP_THE_LOAI.map((name) => {
+            {genres.map((name) => {
               const active =
                 pathname === "/stories" &&
                 decodeURIComponent(currentTheLoai).toLowerCase() === name.toLowerCase();

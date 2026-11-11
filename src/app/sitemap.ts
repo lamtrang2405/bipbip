@@ -1,12 +1,16 @@
-import { MetadataRoute } from "next";
-import { sampleStories } from "@/lib/sample-data";
+import type { MetadataRoute } from "next";
+import { getStoriesByTag } from "@/lib/repository";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
-  const storyUrls = sampleStories.map((story) => ({
-    url: `${baseUrl}/stories/${story.slug}`,
-    lastModified: new Date(story.updatedAt),
-  }));
-
-  return [{ url: baseUrl, lastModified: new Date() }, ...storyUrls];
+  try {
+    const stories = await getStoriesByTag();
+    const storyUrls = stories.map((story) => ({
+      url: `${baseUrl}/stories/${story.slug}`,
+      lastModified: new Date(story.updatedAt),
+    }));
+    return [{ url: baseUrl, lastModified: new Date() }, ...storyUrls];
+  } catch {
+    return [{ url: baseUrl, lastModified: new Date() }];
+  }
 }

@@ -6,15 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:supabase": "node --env-file=.env.local scripts/migrate-to-supabase.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.2",
-    "next": "16.2.4",
+    "next": "^16.4.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -23,7 +24,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "^16.4.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

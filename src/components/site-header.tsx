@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { SiteHeaderControls } from "@/components/site-header-controls";
+import { listVisibleTagNames } from "@/lib/taxonomy";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const genres = await listVisibleTagNames();
   return (
     <header className="border-b border-slate-200 bg-white/95 dark:border-slate-700 dark:bg-slate-900/95">
       <div className="mx-auto w-full max-w-6xl px-4 py-4">
@@ -20,7 +22,7 @@ export function SiteHeader() {
           </Link>
         </div>
         <Suspense fallback={<div className="h-10" />}>
-          <SiteHeaderControls />
+          <SiteHeaderControls genres={genres} />
         </Suspense>
       </div>
     </header>

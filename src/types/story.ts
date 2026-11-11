@@ -12,6 +12,7 @@ export type Story = {
   isFeatured?: boolean;
   completionStatus?: CompletionStatus;
   category?: string | null;
+  categoryId?: string | null;
   totalChaptersPlanned?: number | null;
   publishedAt: string | null;
   createdAt: string;
@@ -40,4 +41,14 @@ export type Tag = {
 export type StoryWithChapters = Story & {
   tags: Tag[];
   chapters: Chapter[];
+};
+
+export type TaxonomyItem = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  sortOrder: number;
+  isVisible: boolean;
+  storyCount: number;
 };

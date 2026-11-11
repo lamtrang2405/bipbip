@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { deleteChapterAction, updateChapterAction } from "@/lib/admin-actions";
-import { isAdminAuthenticated } from "@/lib/auth";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { requireAdmin } from "@/lib/auth";
 import { getStoryByIdForAdmin } from "@/lib/repository";
 
 type Props = {
@@ -10,8 +11,7 @@ type Props = {
 };
 
 export default async function AdminEditChapterPage({ params, searchParams }: Props) {
-  const authed = await isAdminAuthenticated();
-  if (!authed) redirect("/admin/login");
+  await requireAdmin();
 
   const { storyId, chapterId } = await params;
   const q = await searchParams;
@@ -101,12 +101,12 @@ export default async function AdminEditChapterPage({ params, searchParams }: Pro
       <form action={deleteChapterAction} className="mt-6">
         <input type="hidden" name="storyId" value={storyId} />
         <input type="hidden" name="chapterId" value={chapterId} />
-        <button
-          type="submit"
+        <ConfirmSubmitButton
+          message={`Xóa chương ${chapter.chapterNumber}: "${chapter.title}"?`}
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
         >
           Xóa chương này
-        </button>
+        </ConfirmSubmitButton>
       </form>
     </main>
   );
