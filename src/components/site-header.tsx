@@ -16,7 +16,7 @@ export async function SiteHeader() {
             <span className="flex flex-col leading-tight">
               <span className="text-base font-bold tracking-wide">Bíp Bíp Truyện</span>
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                Bíp Bíp Truyện
+                Đọc truyện online miễn phí
               </span>
             </span>
           </Link>

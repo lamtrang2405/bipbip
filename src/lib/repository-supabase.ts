@@ -40,6 +40,8 @@ const STORY_RELATIONS = `
 `;
 
 const STORY_SELECT = `${STORY_COLUMNS}, ${STORY_RELATIONS}`;
+/** Danh sách public: không kèm nội dung chương (trang chủ, danh sách, tìm kiếm). */
+const STORY_LIST_SELECT = `${STORY_COLUMNS}, ${STORY_RELATIONS.replace(/\n\s*content,/, "")}`;
 /** `category_id` chỉ có sau migration 20261111_cms_taxonomy.sql. */
 const ADMIN_STORY_SELECT = `${STORY_COLUMNS}, category_id, ${STORY_RELATIONS}`;
 
@@ -49,7 +51,7 @@ type ChapterRow = {
   chapter_number: number;
   title: string;
   slug: string;
-  content: string;
+  content?: string;
   is_published: boolean;
   published_at: string | null;
   created_at: string;
@@ -105,7 +107,7 @@ function mapChapter(row: ChapterRow): Chapter {
     chapterNumber: row.chapter_number,
     title: row.title,
     slug: row.slug,
-    content: row.content,
+    content: row.content ?? "",
     isPublished: row.is_published,
     publishedAt: row.published_at,
     createdAt: row.created_at,
@@ -167,10 +169,11 @@ async function fetchStoriesOrdered(client: SupabaseClient, select: string): Prom
   return rows.map(mapStoryRow);
 }
 
+/** Chương trả về có `content` rỗng; dùng `sbGetStoryBySlugPublic` khi cần nội dung. */
 export async function sbFetchPublishedStories(): Promise<StoryWithChapters[]> {
   const client = getSupabasePublicClient();
   if (!client) return [];
-  return fetchStoriesOrdered(client, STORY_SELECT);
+  return fetchStoriesOrdered(client, STORY_LIST_SELECT);
 }
 
 export async function sbFetchAllStoriesAdmin(): Promise<StoryWithChapters[]> {

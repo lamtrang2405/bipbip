@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { readStoriesFromStore, writeStoriesToStore } from "@/lib/cms-store";
 import { isSupabaseCmsEnabled } from "@/lib/supabase/cms-config";
 import {
@@ -24,20 +25,36 @@ function filterPublishedStories(stories: StoryWithChapters[]) {
   return stories.filter((story) => story.status === "published");
 }
 
-async function loadPublishedStories(): Promise<StoryWithChapters[]> {
-  if (isSupabaseCmsEnabled()) return sbFetchPublishedStories();
-  return filterPublishedStories(await readStoriesFromStore());
-}
+/** Sắp xếp mới cập nhật trước. Chương không kèm nội dung khi dùng Supabase. */
+const loadPublishedStories = cache(async (): Promise<StoryWithChapters[]> => {
+  const stories = isSupabaseCmsEnabled()
+    ? await sbFetchPublishedStories()
+    : filterPublishedStories(await readStoriesFromStore());
+  return [...stories].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+});
+
+const HOME_SECTION_LIMIT = 10;
+
+export type HomeCategorySection = { name: string; total: number; stories: StoryWithChapters[] };
 
 export async function getHomeData() {
-  const publishedStories = await loadPublishedStories();
+  const stories = await loadPublishedStories();
+  const byCategory = new Map<string, StoryWithChapters[]>();
+  for (const story of stories) {
+    const name = story.category?.trim();
+    if (!name) continue;
+    if (!byCategory.has(name)) byCategory.set(name, []);
+    byCategory.get(name)!.push(story);
+  }
 
   return {
-    featured: publishedStories.filter((story) => story.isFeatured),
-    newest: publishedStories.slice(0, 12),
-    full: publishedStories.filter(
-      (story) => story.chapters.length >= 2 && story.status === "published",
-    ),
+    total: stories.length,
+    featured: stories.filter((story) => story.isFeatured).slice(0, HOME_SECTION_LIMIT),
+    newest: stories.slice(0, 12),
+    completed: stories.filter((story) => story.completionStatus === "completed").slice(0, HOME_SECTION_LIMIT),
+    categories: [...byCategory.entries()]
+      .map(([name, list]): HomeCategorySection => ({ name, total: list.length, stories: list.slice(0, HOME_SECTION_LIMIT) }))
+      .sort((a, b) => b.total - a.total),
   };
 }
 
@@ -108,22 +125,30 @@ export async function getAllTags(): Promise<Tag[]> {
 
 export async function searchStories(query: string) {
   const publishedStories = await loadPublishedStories();
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return [];
+  const fold = (value: string) => slugify(value).replace(/-/g, " ");
+  const needle = fold(query);
+  if (!needle) return [];
 
-  return publishedStories.filter((story) => {
-    const haystack = [story.title, story.summary, ...story.tags.map((t) => t.name)]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(normalized);
-  });
+  const titleMatches: StoryWithChapters[] = [];
+  const otherMatches: StoryWithChapters[] = [];
+  for (const story of publishedStories) {
+    if (fold(story.title).includes(needle)) {
+      titleMatches.push(story);
+      continue;
+    }
+    const haystack = fold(
+      [story.summary, story.author ?? "", story.category ?? "", ...story.tags.map((t) => t.name)].join(" "),
+    );
+    if (haystack.includes(needle)) otherMatches.push(story);
+  }
+  return [...titleMatches, ...otherMatches];
 }
 
-export async function getStoryBySlug(slug: string) {
+export const getStoryBySlug = cache(async (slug: string) => {
   if (isSupabaseCmsEnabled()) return sbGetStoryBySlugPublic(slug);
   const stories = await readStoriesFromStore();
   return filterPublishedStories(stories).find((story) => story.slug === slug);
-}
+});
 
 export async function getChapterBySlug(storySlug: string, chapterSlug: string) {
   const story = await getStoryBySlug(storySlug);

@@ -71,7 +71,11 @@ export async function listTaxonomy(kind: TaxonomyKind): Promise<TaxonomyList> {
   return { items: ((data ?? []) as unknown as TaxonomyRow[]).map(mapRow), schemaReady: true };
 }
 
-/** Thể loại hiển thị trên menu public. Chưa có migration thì dùng danh sách tĩnh. */
+/**
+ * Thể loại hiển thị trên menu public: đang bật và có ít nhất một truyện đã xuất bản
+ * (RLS của `story_tags` chỉ cho anon thấy liên kết của truyện đã xuất bản).
+ * Chưa có migration thì dùng danh sách tĩnh.
+ */
 export async function listVisibleTagNames(): Promise<string[]> {
   const fallback = [...MEOKAMMAP_THE_LOAI];
   if (!isSupabaseCmsEnabled()) return fallback;
@@ -79,12 +83,14 @@ export async function listVisibleTagNames(): Promise<string[]> {
   if (!client) return fallback;
   const { data, error } = await client
     .from("tags")
-    .select("name")
+    .select("name, story_tags(count)")
     .eq("is_visible", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
   if (error) return fallback;
-  return (data ?? []).map((row) => (row as { name: string }).name);
+  return ((data ?? []) as { name: string; story_tags?: { count: number }[] }[])
+    .filter((row) => (row.story_tags?.[0]?.count ?? 0) > 0)
+    .map((row) => row.name);
 }
 
 export async function listVisibleCategoryNames(): Promise<string[] | null> {

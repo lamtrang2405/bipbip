@@ -10,6 +10,9 @@ export function ConsentBanner() {
   // Hide on admin routes
   if (pathname?.startsWith("/admin")) return null;
 
+  // Nothing to consent to until GA4 or AdSense is configured
+  if (!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && !process.env.NEXT_PUBLIC_ADSENSE_CLIENT) return null;
+
   // Only show if mounted and pending
   if (!isMounted || consentStatus !== "pending") return null;
 

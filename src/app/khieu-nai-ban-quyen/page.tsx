@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+
+export const metadata: Metadata = { title: "Khiếu nại bản quyền", alternates: { canonical: "/khieu-nai-ban-quyen" } };
 
 export default function CopyrightComplaintPage() {
   return (
