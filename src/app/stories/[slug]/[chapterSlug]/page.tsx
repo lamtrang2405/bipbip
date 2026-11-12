@@ -8,6 +8,10 @@ import { chapterLabel, excerpt, splitParagraphs } from "@/lib/story-format";
 import { ChapterTracker } from "@/components/scripts/trackers";
 import { AdSenseUnit } from "@/components/adsense-unit";
 import { NextChapterLink } from "@/components/scripts/next-chapter-link";
+import { AffiliateAdGuard, AffiliateChapterProvider } from "@/components/affiliate/affiliate-chapter-provider";
+import { AffiliateSlot } from "@/components/affiliate/affiliate-slot";
+import { AffiliateUnlockGate } from "@/components/affiliate/affiliate-unlock-gate";
+import { getAffiliateForStory } from "@/lib/affiliate";
 import { Chapter } from "@/types/story";
 
 type ChapterPageProps = {
@@ -82,41 +86,60 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
 
   const { story, chapter, prev, next } = data;
   const paragraphs = splitParagraphs(chapter.content);
+  const affiliate = await getAffiliateForStory(story.id);
 
   return (
     <div className="min-h-screen">
       <ChapterTracker storySlug={story.slug} chapterSlug={chapter.slug} chapterNumber={chapter.chapterNumber} />
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-8">
-        <p className="text-sm text-slate-500">
-          <Link href={`/stories/${story.slug}`} className="hover:text-amber-700 hover:underline">
-            {story.title}
-          </Link>
-        </p>
-        <h1 className="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">
-          {chapterLabel(chapter.chapterNumber, chapter.title)}
-        </h1>
+      <AffiliateChapterProvider key={chapter.id} data={affiliate} storyId={story.id} chapterNumber={chapter.chapterNumber}>
+        <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-8">
+          <p className="text-sm text-slate-500">
+            <Link href={`/stories/${story.slug}`} className="hover:text-amber-700 hover:underline">
+              {story.title}
+            </Link>
+          </p>
+          <h1 className="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">
+            {chapterLabel(chapter.chapterNumber, chapter.title)}
+          </h1>
 
-        <div className="mt-5">
-          <ChapterNav storySlug={story.slug} current={chapter} prev={prev} next={next} />
-        </div>
+          <div className="mt-5">
+            <ChapterNav storySlug={story.slug} current={chapter} prev={prev} next={next} />
+          </div>
 
-        <div className="my-6">
-          <AdSenseUnit adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_TOP} />
-        </div>
+          <div className="my-6">
+            <AffiliateAdGuard>
+              <AdSenseUnit adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_TOP} />
+            </AffiliateAdGuard>
+          </div>
 
-        <article className="space-y-5 rounded-xl border border-slate-200 bg-white px-5 py-7 text-[17px] leading-8 text-slate-800 shadow-sm sm:px-8 sm:text-lg">
-          {paragraphs.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
-        </article>
+          <AffiliateUnlockGate>
+            <article className="space-y-5 rounded-xl border border-slate-200 bg-white px-5 py-7 text-[17px] leading-8 text-slate-800 shadow-sm sm:px-8 sm:text-lg">
+              {paragraphs.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </article>
+          </AffiliateUnlockGate>
 
-        <div className="my-6">
-          <AdSenseUnit adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_BOTTOM} />
-        </div>
+          {affiliate.chapter_end ? (
+            <AffiliateSlot
+              placement="chapter_end"
+              offers={affiliate.chapter_end.offers}
+              storyId={story.id}
+              chapterNumber={chapter.chapterNumber}
+              className="mt-6"
+            />
+          ) : null}
 
-        <ChapterNav storySlug={story.slug} current={chapter} prev={prev} next={next} />
-      </main>
+          <div className="mt-6">
+            <ChapterNav storySlug={story.slug} current={chapter} prev={prev} next={next} />
+          </div>
+
+          <div className="mt-6">
+            <AdSenseUnit adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_BOTTOM} />
+          </div>
+        </main>
+      </AffiliateChapterProvider>
       <SiteFooter />
     </div>
   );

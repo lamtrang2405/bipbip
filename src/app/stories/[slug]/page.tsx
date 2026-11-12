@@ -8,6 +8,8 @@ import { CoverPlaceholder } from "@/components/story-card";
 import { getStoryBySlug } from "@/lib/repository";
 import { chapterLabel, completionLabel, excerpt, relativeTime, splitParagraphs } from "@/lib/story-format";
 import { StoryTracker } from "@/components/scripts/trackers";
+import { AffiliateSlot } from "@/components/affiliate/affiliate-slot";
+import { getAffiliateForStory } from "@/lib/affiliate";
 
 type StoryDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -41,6 +43,7 @@ export default async function StoryDetailPage({ params }: StoryDetailPageProps) 
   const chapters = story.chapters
     .filter((chapter) => chapter.isPublished)
     .sort((a, b) => a.chapterNumber - b.chapterNumber);
+  const affiliate = await getAffiliateForStory(story.id);
 
   return (
     <div className="min-h-screen">
@@ -142,6 +145,15 @@ export default async function StoryDetailPage({ params }: StoryDetailPageProps) 
             </div>
           </div>
         </section>
+
+        {affiliate.story_detail ? (
+          <AffiliateSlot
+            placement="story_detail"
+            offers={affiliate.story_detail.offers}
+            storyId={story.id}
+            className="mx-auto mt-6 max-w-3xl"
+          />
+        ) : null}
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-4 flex items-center justify-between gap-2 border-b border-slate-200 pb-3">

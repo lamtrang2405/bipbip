@@ -2,7 +2,7 @@ import Link from "next/link";
 import { logoutAction } from "@/lib/admin-actions";
 import { MIGRATION_HINT } from "@/lib/taxonomy";
 
-export type AdminSection = "create" | "category" | "stories" | "taxonomy" | "import";
+export type AdminSection = "create" | "category" | "stories" | "taxonomy" | "import" | "affiliate";
 
 const SECTIONS: { id: AdminSection; label: string; href: string }[] = [
   { id: "create", label: "Đẩy nội dung", href: "/admin?tab=create" },
@@ -10,6 +10,7 @@ const SECTIONS: { id: AdminSection; label: string; href: string }[] = [
   { id: "stories", label: "Quản lý theo truyện", href: "/admin?tab=stories" },
   { id: "taxonomy", label: "Thể loại & Danh mục", href: "/admin/taxonomy" },
   { id: "import", label: "Import Google Sheet", href: "/admin/import" },
+  { id: "affiliate", label: "Affiliate", href: "/admin/affiliate" },
 ];
 
 export function AdminNav({ current, schemaReady = true }: { current: AdminSection; schemaReady?: boolean }) {

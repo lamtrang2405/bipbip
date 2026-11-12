@@ -36,7 +36,37 @@ export function useTracking() {
     fireEvent("next_chapter_click", { story_slug: storySlug, from_chapter_slug: fromChapterSlug });
   }, [fireEvent]);
 
-  return { trackPageView, trackStoryView, trackChapterView, trackNextChapterClick };
+  const trackAffiliateImpression = useCallback((placement: string, linkId: string) => {
+    fireEvent("affiliate_impression", { placement, link_id: linkId });
+  }, [fireEvent]);
+
+  const trackAffiliateClick = useCallback((placement: string, linkId: string) => {
+    fireEvent("affiliate_click", { placement, link_id: linkId });
+  }, [fireEvent]);
+
+  const trackAffiliateModalShown = useCallback((linkId: string) => {
+    fireEvent("affiliate_modal_shown", { placement: "next_chapter_modal", link_id: linkId });
+  }, [fireEvent]);
+
+  const trackAffiliateGateShown = useCallback((linkId: string) => {
+    fireEvent("affiliate_gate_shown", { placement: "chapter_unlock", link_id: linkId });
+  }, [fireEvent]);
+
+  const trackAffiliateGateSkip = useCallback((linkId: string) => {
+    fireEvent("affiliate_gate_skip", { placement: "chapter_unlock", link_id: linkId });
+  }, [fireEvent]);
+
+  return {
+    trackPageView,
+    trackStoryView,
+    trackChapterView,
+    trackNextChapterClick,
+    trackAffiliateImpression,
+    trackAffiliateClick,
+    trackAffiliateModalShown,
+    trackAffiliateGateShown,
+    trackAffiliateGateSkip,
+  };
 }
 
 // Hook to track page views automatically inside a component (used once per page)
