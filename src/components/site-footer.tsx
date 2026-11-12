@@ -15,10 +15,6 @@ export function SiteFooter() {
               <span className="text-base font-semibold">Bíp Bíp Truyện</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-6 text-slate-600 dark:text-slate-400">
-              Bíp Bíp Truyện là website đọc truyện online miễn phí với nhiều thể loại phong phú: tiên hiệp,
-              kiếm hiệp, ngôn tình, huyền huyễn và nhiều hơn nữa.
-            </p>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-slate-600 dark:text-slate-400">
               Truy cập website đồng nghĩa bạn đã đồng ý với
               <Link
                 href="/dieu-khoan-su-dung"
