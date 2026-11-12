@@ -6,8 +6,9 @@
 - [x] Run `supabase/migrations/20261111_cms_taxonomy.sql` (danh mục, thể loại, import_jobs).
 - [x] Configure environment variables in Vercel (project `bipbip-clu1`; secret chỉ ở Production).
 - [x] Set `NEXT_PUBLIC_SITE_URL` to production domain (`https://bipbip-clu1.vercel.app`).
-- [ ] Run `supabase/migrations/20261112_rls_hardening.sql`.
-- [ ] Tắt bản deploy Railway cũ (`bipbip-production.up.railway.app`) — chạy code cũ, cookie admin giả mạo được.
+- [x] Run `supabase/migrations/20261112_rls_hardening.sql`.
+- [ ] Tắt bản deploy Railway cũ (`bipbip-production.up.railway.app`, thuộc tài khoản Railway của phongpn) — chạy code cũ, cookie admin giả mạo được.
+- [x] Đổi key Supabase (12/11/2026): dùng `sb_publishable_…` / `sb_secret_…` (`bipbip_vercel_2026_11`), tắt key JWT cũ (anon, service_role).
 
 ## Security
 - [x] Set strong `ADMIN_PASSWORD`.

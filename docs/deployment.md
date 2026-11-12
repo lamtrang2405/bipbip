@@ -16,6 +16,10 @@
 
 Secret đặt kiểu **Sensitive**. Đổi biến xong phải redeploy để có hiệu lực.
 
+### Key Supabase
+- Dùng key kiểu mới: `NEXT_PUBLIC_SUPABASE_ANON_KEY` = publishable key (`sb_publishable_…`), `SUPABASE_SERVICE_ROLE_KEY` = secret key `bipbip_vercel_2026_11` (`sb_secret_…`). Key JWT cũ (anon / service_role) đã bị tắt.
+- Đổi key: Supabase Dashboard > Project Settings > API Keys > tạo secret key mới > cập nhật Vercel + `.env.local` > redeploy > xóa secret key cũ.
+
 ### Rollback
 Vercel Dashboard > Project > Deployments > chọn bản ổn định > **Promote to Production**.
 
