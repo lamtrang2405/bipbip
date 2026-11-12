@@ -14,6 +14,7 @@ type AdminStoryFormProps = Omit<StoryMetaFieldsProps, "story"> & {
   storyCreated: boolean;
   showStoryError: boolean;
   showSlugError: boolean;
+  showCoverError: boolean;
 };
 
 export function AdminStoryForm({
@@ -21,6 +22,7 @@ export function AdminStoryForm({
   storyCreated,
   showStoryError,
   showSlugError,
+  showCoverError,
   ...metaProps
 }: AdminStoryFormProps) {
   const [chapters, setChapters] = useState<ChapterDraft[]>([
@@ -53,6 +55,12 @@ export function AdminStoryForm({
       {showSlugError ? (
         <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           Slug đã được dùng bởi truyện khác. Hãy đổi tiêu đề hoặc nhập slug khác.
+        </p>
+      ) : null}
+
+      {showCoverError ? (
+        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          Không lưu được thumbnail (chỉ nhận JPG/PNG/WEBP tối đa 5MB, link phải là ảnh công khai). Truyện chưa được tạo.
         </p>
       ) : null}
 

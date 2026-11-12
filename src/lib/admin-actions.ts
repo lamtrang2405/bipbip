@@ -8,6 +8,7 @@ import {
   deleteChapterById,
   deleteStoryById,
   getStoryByIdForAdmin,
+  setStoryCover,
   setStoryFlags,
   updateChapter,
   updateStory,
@@ -15,7 +16,7 @@ import {
 import { sbIsStorySlugTaken } from "@/lib/repository-supabase";
 import { slugify, uniqueChapterSlug } from "@/lib/slugify";
 import { loginAdmin, logoutAdmin, requireAdmin } from "@/lib/auth";
-import { saveCoverImage } from "@/lib/covers";
+import { isStoredCoverUrl, rehostCoverFromUrl, saveCoverImage } from "@/lib/covers";
 import { isSupabaseCmsEnabled } from "@/lib/supabase/cms-config";
 import { CompletionStatus, StoryStatus } from "@/types/story";
 
@@ -108,6 +109,24 @@ function parseChapterRows(raw: string): ChapterInput[] {
   }
 }
 
+type CoverChange = { kind: "none" } | { kind: "set"; url: string } | { kind: "remove" } | { kind: "error" };
+
+/** Đọc `cover` (file), `coverUrl` (link) và `removeCover` của `CoverInput`. */
+async function resolveCoverChange(formData: FormData, storySlug: string): Promise<CoverChange> {
+  const file = formData.get("cover");
+  if (file instanceof File && file.size > 0) {
+    const url = await saveCoverImage(file, storySlug);
+    return url ? { kind: "set", url } : { kind: "error" };
+  }
+  const link = String(formData.get("coverUrl") ?? "").trim();
+  if (link) {
+    if (isStoredCoverUrl(link)) return { kind: "set", url: link };
+    const url = await rehostCoverFromUrl(link, storySlug);
+    return url ? { kind: "set", url } : { kind: "error" };
+  }
+  return formData.get("removeCover") === "on" ? { kind: "remove" } : { kind: "none" };
+}
+
 export async function createStoryAction(formData: FormData) {
   await requireAdmin();
   const meta = parseStoryMeta(formData);
@@ -120,11 +139,12 @@ export async function createStoryAction(formData: FormData) {
     redirect("/admin?tab=create&error=slug");
   }
 
-  const coverUrl = await saveCoverImage(formData.get("cover"), meta.slug);
+  const cover = await resolveCoverChange(formData, meta.slug);
+  if (cover.kind === "error") redirect("/admin?tab=create&error=cover");
   const story = await createStory({
     ...meta,
     categoryId: meta.categoryId ?? null,
-    coverUrl,
+    coverUrl: cover.kind === "set" ? cover.url : null,
   });
 
   const takenSlugs = new Set<string>();
@@ -151,13 +171,9 @@ export async function updateStoryAction(formData: FormData) {
   const meta = parseStoryMeta(formData);
   if (!meta.title || !meta.summary || !meta.slug) redirect(`${editPath}?error=invalid`);
 
-  let coverUrl: string | null | undefined;
-  if (formData.get("removeCover") === "on") coverUrl = null;
-  const cover = formData.get("cover");
-  if (cover instanceof File && cover.size > 0) {
-    coverUrl = await saveCoverImage(cover, meta.slug);
-    if (!coverUrl) redirect(`${editPath}?error=cover`);
-  }
+  const cover = await resolveCoverChange(formData, meta.slug);
+  if (cover.kind === "error") redirect(`${editPath}?error=cover`);
+  const coverUrl = cover.kind === "set" ? cover.url : cover.kind === "remove" ? null : undefined;
 
   const result = await updateStory(storyId, {
     ...meta,
@@ -170,6 +186,21 @@ export async function updateStoryAction(formData: FormData) {
   }
   revalidatePublicSite();
   redirect(`${editPath}?saved=1`);
+}
+
+export async function updateStoryCoverAction(formData: FormData) {
+  await requireAdmin();
+  const storyId = String(formData.get("storyId") ?? "");
+  const storySlug = String(formData.get("storySlug") ?? "") || storyId;
+  const returnTo = safeAdminPath(formData.get("returnTo"), "/admin?tab=stories");
+  if (!storyId) redirect(returnTo);
+
+  const cover = await resolveCoverChange(formData, storySlug);
+  if (cover.kind === "error") redirect(withQuery(returnTo, "cover=error"));
+  if (cover.kind === "none") redirect(returnTo);
+  await setStoryCover(storyId, cover.kind === "set" ? cover.url : null);
+  revalidatePublicSite();
+  redirect(withQuery(returnTo, "cover=ok"));
 }
 
 export async function toggleStoryFlagAction(formData: FormData) {

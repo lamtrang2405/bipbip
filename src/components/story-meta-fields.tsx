@@ -1,3 +1,4 @@
+import { CoverInput } from "@/components/cover-input";
 import { StoryWithChapters, TaxonomyItem } from "@/types/story";
 
 export type StoryMetaFieldsProps = {
@@ -26,6 +27,11 @@ export function StoryMetaFields({ story, tags, categories, categoriesReady }: St
           <label className={labelClass}>Tác giả{story ? "" : " *"}</label>
           <input name="author" required={!story} defaultValue={story?.author ?? ""} className={inputClass} />
         </div>
+      </div>
+
+      <div>
+        <label className={labelClass}>Ảnh thumbnail (ảnh bìa)</label>
+        <CoverInput currentUrl={story?.coverUrl} title={story?.title} />
       </div>
 
       <div>
@@ -113,20 +119,6 @@ export function StoryMetaFields({ story, tags, categories, categoriesReady }: St
         />
       </fieldset>
 
-      <div>
-        <label className={labelClass}>Ảnh bìa (jpg/png/webp, tối đa 5MB)</label>
-        {story?.coverUrl ? (
-          <div className="mb-2 flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={story.coverUrl} alt={story.title} className="h-24 w-18 rounded object-cover" />
-            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-              <input type="checkbox" name="removeCover" />
-              Xóa ảnh bìa hiện tại
-            </label>
-          </div>
-        ) : null}
-        <input type="file" name="cover" accept="image/png,image/jpeg,image/webp" className={inputClass} />
-      </div>
 
       <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">

@@ -9,6 +9,7 @@ import {
   sbFetchPublishedStories,
   sbGetStoryByIdAdmin,
   sbGetStoryBySlugPublic,
+  sbPatchStory,
   sbSetStoryFlags,
   sbUpdateChapter,
   sbUpdateStory,
@@ -273,6 +274,16 @@ export async function setStoryFlags(
 ): Promise<boolean> {
   if (!isSupabaseCmsEnabled()) throw new Error(SUPABASE_REQUIRED);
   return sbSetStoryFlags(id, flags);
+}
+
+export async function setStoryCover(id: string, coverUrl: string | null): Promise<void> {
+  if (isSupabaseCmsEnabled()) return sbPatchStory(id, { coverUrl });
+  const stories = await readStoriesFromStore();
+  const story = stories.find((s) => s.id === id);
+  if (!story) return;
+  story.coverUrl = coverUrl;
+  story.updatedAt = new Date().toISOString();
+  await writeStoriesToStore(stories);
 }
 
 export async function createChapter(input: {

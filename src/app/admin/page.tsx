@@ -3,6 +3,7 @@ import { createStoryAction } from "@/lib/admin-actions";
 import { AdminNav } from "@/components/admin-nav";
 import { AdminStoryForm } from "@/components/admin-story-form";
 import { StoryFlagToggles, StoryRowActions } from "@/components/admin-story-actions";
+import { QuickCoverUpload } from "@/components/quick-cover-upload";
 import { requireAdmin } from "@/lib/auth";
 import { groupStoriesByCategoryLabel, listAdminStories } from "@/lib/repository";
 import { listTaxonomy } from "@/lib/taxonomy";
@@ -26,6 +27,8 @@ type AdminPageProps = {
     tag?: string;
     status?: string;
     featured?: string;
+    nocover?: string;
+    cover?: string;
   }>;
 };
 
@@ -55,10 +58,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     .filter((s) => !params.tag || s.tags.some((t) => t.id === params.tag))
     .filter((s) => !params.status || s.status === params.status)
     .filter((s) => params.featured !== "1" || s.isFeatured)
+    .filter((s) => params.nocover !== "1" || !s.coverUrl)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
   const currentQuery = new URLSearchParams(
-    Object.entries({ ...params, tab, deleted: undefined, error: undefined }).filter(
+    Object.entries({ ...params, tab, deleted: undefined, error: undefined, cover: undefined }).filter(
       (entry): entry is [string, string] => typeof entry[1] === "string" && entry[1] !== "",
     ),
   ).toString();
@@ -69,6 +73,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       {showDeleteError ? (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
           Không xóa được truyện (không tìm thấy hoặc lỗi dữ liệu).
+        </p>
+      ) : null}
+      {params.cover === "ok" ? (
+        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+          Đã cập nhật thumbnail.
+        </p>
+      ) : null}
+      {params.cover === "error" ? (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          Không lưu được thumbnail (chỉ nhận JPG/PNG/WEBP tối đa 5MB, link phải là ảnh công khai).
         </p>
       ) : null}
       {showDeleted ? (
@@ -98,6 +112,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               storyCreated={params.created === "story"}
               showStoryError={params.error === "story"}
               showSlugError={params.error === "slug"}
+              showCoverError={params.error === "cover"}
               tags={tagList.items}
               categories={categoryList.items}
               categoriesReady={categoryList.schemaReady}
@@ -134,11 +149,20 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         key={story.id}
                         className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                       >
-                        <div>
+                        <div className="flex items-center gap-3">
+                          <QuickCoverUpload
+                            storyId={story.id}
+                            storySlug={story.slug}
+                            title={story.title}
+                            coverUrl={story.coverUrl}
+                            returnTo={returnTo}
+                          />
+                          <div>
                           <p className="font-medium text-slate-900 dark:text-slate-100">{story.title}</p>
                           <p className="text-xs text-slate-500">
                             {story.author ?? "Không rõ tác giả"} · {story.chapters.length} chương · /{story.slug}
                           </p>
+                          </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                           <StoryFlagToggles story={story} returnTo={returnTo} />
@@ -186,6 +210,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <input type="checkbox" name="featured" value="1" defaultChecked={params.featured === "1"} />
                 Chỉ đề cử
               </label>
+              <label className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
+                <input type="checkbox" name="nocover" value="1" defaultChecked={params.nocover === "1"} />
+                Chưa có thumbnail ({stories.filter((s) => !s.coverUrl).length})
+              </label>
               <button type="submit" className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-amber-600">
                 Lọc
               </button>
@@ -197,9 +225,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               {filtered.length} / {stories.length} truyện, sắp xếp theo cập nhật mới nhất.
             </p>
             <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-600">
-              <table className="w-full min-w-[860px] text-left text-sm">
+              <table className="w-full min-w-[920px] text-left text-sm">
                 <thead className="bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                   <tr>
+                    <th className="px-3 py-2 font-semibold">Thumbnail</th>
                     <th className="px-3 py-2 font-semibold">Tiêu đề</th>
                     <th className="px-3 py-2 font-semibold">Tác giả</th>
                     <th className="px-3 py-2 font-semibold">Danh mục / Thể loại</th>
@@ -212,6 +241,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {filtered.map((story) => (
                     <tr key={story.id} className="bg-white align-top dark:bg-slate-900">
+                      <td className="px-3 py-2">
+                        <QuickCoverUpload
+                          storyId={story.id}
+                          storySlug={story.slug}
+                          title={story.title}
+                          coverUrl={story.coverUrl}
+                          returnTo={returnTo}
+                        />
+                      </td>
                       <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
                         {story.title}
                         <div className="text-xs font-normal text-slate-500">/{story.slug}</div>

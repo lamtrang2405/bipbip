@@ -15,7 +15,7 @@ type Props = {
 const ERRORS: Record<string, string> = {
   invalid: "Vui lòng điền đầy đủ tiêu đề, slug và tóm tắt.",
   slug: "Slug đã được dùng bởi truyện khác.",
-  cover: "Không lưu được ảnh bìa (chỉ nhận jpg/png/webp, tối đa 5MB).",
+  cover: "Không lưu được thumbnail (chỉ nhận JPG/PNG/WEBP tối đa 5MB, link phải là ảnh công khai).",
 };
 
 export default async function AdminEditStoryPage({ params, searchParams }: Props) {

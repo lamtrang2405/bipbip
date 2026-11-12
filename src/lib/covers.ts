@@ -10,9 +10,24 @@ const EXT_BY_TYPE: Record<string, string> = {
 };
 const MAX_COVER_BYTES = 5 * 1024 * 1024;
 
-async function storeCover(buffer: Buffer, contentType: string, storySlug: string): Promise<string | null> {
-  const ext = EXT_BY_TYPE[contentType];
-  if (!ext || buffer.length === 0 || buffer.length > MAX_COVER_BYTES) return null;
+/** Nhận diện định dạng theo byte đầu file, không tin `Content-Type` do client khai. */
+function sniffImageType(buffer: Buffer): string | null {
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+  if (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+    return "image/png";
+  }
+  if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+    return "image/webp";
+  }
+  return null;
+}
+
+/** `declaredType`: loại file trình duyệt khai (chỉ có khi upload trực tiếp), phải là ảnh được hỗ trợ. */
+async function storeCover(buffer: Buffer, storySlug: string, declaredType?: string): Promise<string | null> {
+  const contentType = sniffImageType(buffer);
+  const ext = contentType ? EXT_BY_TYPE[contentType] : undefined;
+  if (!contentType || !ext || buffer.length > MAX_COVER_BYTES) return null;
+  if (declaredType !== undefined && !EXT_BY_TYPE[declaredType]) return null;
   const fileName = `${storySlug}-${Date.now()}.${ext}`;
 
   if (isSupabaseCmsEnabled()) {
@@ -34,7 +49,7 @@ async function storeCover(buffer: Buffer, contentType: string, storySlug: string
 
 export async function saveCoverImage(file: FormDataEntryValue | null, storySlug: string) {
   if (!(file instanceof File) || file.size === 0) return null;
-  return storeCover(Buffer.from(await file.arrayBuffer()), file.type, storySlug);
+  return storeCover(Buffer.from(await file.arrayBuffer()), storySlug, file.type);
 }
 
 /** Link chia sẻ Google Drive (`/file/d/{id}/view`, `open?id=`) -> link tải trực tiếp. */
@@ -66,10 +81,9 @@ export async function rehostCoverFromUrl(rawUrl: string, storySlug: string): Pro
   try {
     const res = await fetch(target, { redirect: "follow", signal: AbortSignal.timeout(15_000) });
     if (!res.ok) return null;
-    const contentType = (res.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
     const declaredSize = Number(res.headers.get("content-length") ?? 0);
-    if (!EXT_BY_TYPE[contentType] || declaredSize > MAX_COVER_BYTES) return null;
-    return storeCover(Buffer.from(await res.arrayBuffer()), contentType, storySlug);
+    if (declaredSize > MAX_COVER_BYTES) return null;
+    return storeCover(Buffer.from(await res.arrayBuffer()), storySlug);
   } catch {
     return null;
   }
