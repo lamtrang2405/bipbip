@@ -61,8 +61,6 @@ export default async function Home() {
           title="Mới cập nhật"
           subtitle="Những truyện vừa có chương mới."
           stories={newest}
-          moreHref="/stories"
-          moreLabel={`Xem tất cả ${total} truyện`}
         />
         <StorySection title="Truyện đã hoàn thành" stories={completed} />
         {categories.map((category) => (
