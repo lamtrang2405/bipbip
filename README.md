@@ -1,4 +1,4 @@
-# NangTho Studio (Author-First MVP)
+# hihi (Author-First MVP)
 
 Web reading product similar to meokammap, optimized for personal story publishing first.
 
