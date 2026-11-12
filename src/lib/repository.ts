@@ -61,7 +61,11 @@ export async function getStoriesByTheLoai(theLoai?: string) {
   const publishedStories = await loadPublishedStories();
   if (!theLoai) return publishedStories;
 
-  const label = decodeURIComponent(theLoai).trim().toLowerCase();
+  let label = theLoai;
+  try {
+    label = decodeURIComponent(theLoai);
+  } catch {}
+  label = label.trim().toLowerCase();
   if (!label) return publishedStories;
 
   return publishedStories.filter((story) =>

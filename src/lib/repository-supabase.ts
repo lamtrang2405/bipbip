@@ -1,5 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublicClient } from "@/lib/supabase/server";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { slugify } from "@/lib/slugify";
 import { Chapter, CompletionStatus, StoryStatus, StoryWithChapters, Tag } from "@/types/story";
@@ -168,7 +168,7 @@ async function fetchStoriesOrdered(client: SupabaseClient, select: string): Prom
 }
 
 export async function sbFetchPublishedStories(): Promise<StoryWithChapters[]> {
-  const client = await getSupabaseServerClient();
+  const client = getSupabasePublicClient();
   if (!client) return [];
   return fetchStoriesOrdered(client, STORY_SELECT);
 }
@@ -180,7 +180,7 @@ export async function sbFetchAllStoriesAdmin(): Promise<StoryWithChapters[]> {
 }
 
 export async function sbGetStoryBySlugPublic(slug: string): Promise<StoryWithChapters | null> {
-  const client = await getSupabaseServerClient();
+  const client = getSupabasePublicClient();
   if (!client) return null;
   const { data, error } = await client
     .from("stories")

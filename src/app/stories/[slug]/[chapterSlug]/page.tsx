@@ -2,10 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { getChapterBySlug } from "@/lib/repository";
+import { ChapterTracker } from "@/components/scripts/trackers";
+import { AdSenseUnit } from "@/components/adsense-unit";
+import { NextChapterLink } from "@/components/scripts/next-chapter-link";
 
 type ChapterPageProps = {
   params: Promise<{ slug: string; chapterSlug: string }>;
 };
+
+export const revalidate = 60;
 
 export default async function ChapterPage({ params }: ChapterPageProps) {
   const { slug, chapterSlug } = await params;
@@ -16,6 +21,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
 
   return (
     <div className="min-h-screen">
+      <ChapterTracker storySlug={story.slug} chapterSlug={chapter.slug} chapterNumber={chapter.chapterNumber} />
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl px-4 py-8">
         <p className="text-sm text-slate-500">
@@ -24,11 +30,20 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
         <h1 className="mt-2 text-2xl font-bold text-slate-900">
           Chương {chapter.chapterNumber}: {chapter.title}
         </h1>
-        <article className="mt-6 rounded-xl border border-slate-200 bg-white px-6 py-8 leading-8 text-slate-700 shadow-sm">
+
+        <div className="my-6">
+          <AdSenseUnit adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_TOP} />
+        </div>
+
+        <article className="rounded-xl border border-slate-200 bg-white px-6 py-8 leading-8 text-slate-700 shadow-sm">
           {chapter.content}
         </article>
 
-        <div className="mt-8 flex items-center justify-between gap-3">
+        <div className="my-6">
+          <AdSenseUnit adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_BOTTOM} />
+        </div>
+
+        <div className="mt-2 flex items-center justify-between gap-3">
           {prev ? (
             <Link
               href={`/stories/${story.slug}/${prev.slug}`}
@@ -41,12 +56,14 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
           )}
 
           {next ? (
-            <Link
+            <NextChapterLink
+              storySlug={story.slug}
+              fromChapterSlug={chapter.slug}
               href={`/stories/${story.slug}/${next.slug}`}
               className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white"
             >
               Chương tiếp
-            </Link>
+            </NextChapterLink>
           ) : (
             <span className="text-sm text-slate-500">Hết chương</span>
           )}

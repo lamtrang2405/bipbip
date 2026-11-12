@@ -137,6 +137,9 @@ alter table public.chapters enable row level security;
 alter table public.tags enable row level security;
 alter table public.story_tags enable row level security;
 alter table public.import_jobs enable row level security;
+alter table public.story_metrics_daily enable row level security;
+
+create index if not exists chapters_story_id_idx on public.chapters(story_id);
 
 drop policy if exists "Public can read visible categories" on public.categories;
 create policy "Public can read visible categories"
@@ -154,7 +157,13 @@ drop policy if exists "Public can read published chapters" on public.chapters;
 create policy "Public can read published chapters"
   on public.chapters
   for select
-  using (is_published = true);
+  using (
+    is_published = true
+    and exists (
+      select 1 from public.stories s
+      where s.id = chapters.story_id and s.status = 'published'
+    )
+  );
 
 drop policy if exists "Public can read tags" on public.tags;
 create policy "Public can read tags"
@@ -170,6 +179,17 @@ create policy "Public can read story_tags"
     exists (
       select 1 from public.stories s
       where s.id = story_tags.story_id and s.status = 'published'
+    )
+  );
+
+drop policy if exists "Public can read story metrics" on public.story_metrics_daily;
+create policy "Public can read story metrics"
+  on public.story_metrics_daily
+  for select
+  using (
+    exists (
+      select 1 from public.stories s
+      where s.id = story_metrics_daily.story_id and s.status = 'published'
     )
   );
 

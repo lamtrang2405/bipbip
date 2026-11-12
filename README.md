@@ -5,7 +5,7 @@ Web reading product similar to meokammap, optimized for personal story publishin
 ## Stack
 - Next.js App Router + TypeScript + Tailwind CSS.
 - Supabase (Postgres/Auth/RLS-ready).
-- Vercel deployment target.
+- Vercel deployment (xem `docs/deployment.md`); Docker image tùy chọn để tự host.
 
 ## Local setup
 1. Copy env:
@@ -40,7 +40,8 @@ Web reading product similar to meokammap, optimized for personal story publishin
 - DB mới: chạy `supabase/schema.sql`.
 - DB đang có dữ liệu, chạy lần lượt (mỗi file chạy lại nhiều lần vẫn an toàn):
   1. `supabase/migrations/20260423_stories_cms_columns.sql`
-  2. `supabase/migrations/20261111_cms_taxonomy.sql` — tạo bảng `categories` (điền từ cột `stories.category`), thêm `stories.category_id`, thêm `sort_order`/`is_visible`/`description` cho `tags`, dọn tên thể loại bẩn (`"Hiện đại |"`), gộp thể loại trùng, seed danh sách thể loại mặc định, tạo bảng `import_jobs`.
+  2. `supabase/migrations/20261111_cms_taxonomy.sql — tạo bảng `categories` (điền từ cột `stories.category`), thêm `stories.category_id`, thêm `sort_order`/`is_visible`/`description` cho `tags`, dọn tên thể loại bẩn (`"Hiện đại |"`), gộp thể loại trùng, seed danh sách thể loại mặc định, tạo bảng `import_jobs`.
+  3. `supabase/migrations/20261112_rls_hardening.sql` — chặn đọc chương / thống kê của truyện chưa xuất bản.
 - Chưa chạy migration thứ 2 thì admin hiện cảnh báo; trang public vẫn chạy (menu thể loại dùng danh sách tĩnh).
 - Import dữ liệu cũ từ JSON: `npm run migrate:supabase` (Node 20+; đọc biến từ `.env.local`).
 
@@ -68,9 +69,16 @@ Quy tắc:
   - Admin full CRUD using JWT role `admin`
 - App ghi dữ liệu bằng service role (bỏ qua RLS) trong Server Actions đã kiểm tra `requireAdmin()`.
 
+## Tracking & quảng cáo
+- Banner xin đồng ý cookie; GA4 và AdSense chỉ tải sau khi người đọc bấm "Đồng ý", không tải trên `/admin`.
+- Bật bằng biến môi trường: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_ADSENSE_CLIENT`, `NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_TOP`, `NEXT_PUBLIC_ADSENSE_SLOT_CHAPTER_BOTTOM` (để trống = tắt).
+- Sự kiện: `page_view`, `story_view`, `chapter_view`, `next_chapter_click`.
+- Trang chủ / truyện / chương dùng ISR 60 giây (client Supabase không đọc cookie); thao tác ghi trong admin gọi `revalidatePath` nên nội dung cập nhật ngay.
+
 ## Docs
 - PRD: `docs/PRD-MVP.md`
 - Go-live checklist: `docs/go-live-checklist.md`
+- Deployment: `docs/deployment.md`
 
 ## GitHub Pages HTML
 - Entry: `docs/index.html`

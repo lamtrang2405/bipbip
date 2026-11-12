@@ -3,10 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { getStoryBySlug } from "@/lib/repository";
+import { StoryTracker } from "@/components/scripts/trackers";
 
 type StoryDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export const revalidate = 60;
 
 export default async function StoryDetailPage({ params }: StoryDetailPageProps) {
   const { slug } = await params;
@@ -19,6 +22,7 @@ export default async function StoryDetailPage({ params }: StoryDetailPageProps) 
 
   return (
     <div className="min-h-screen">
+      <StoryTracker storySlug={story.slug} title={story.title} />
       <SiteHeader />
       <main className="mx-auto w-full max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
         <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">

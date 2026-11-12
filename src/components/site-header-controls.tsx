@@ -1,26 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+
+type SiteHeaderControlsViewProps = {
+  genres: string[];
+  pathname: string;
+  currentTheLoai: string;
+  searchDefault: string;
+};
 
 export function SiteHeaderControls({ genres }: { genres: string[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  return (
+    <SiteHeaderControlsView
+      genres={genres}
+      pathname={pathname}
+      currentTheLoai={searchParams.get("the-loai") ?? ""}
+      searchDefault={searchParams.get("q") ?? ""}
+    />
+  );
+}
 
-  const currentTheLoai = searchParams.get("the-loai") ?? "";
-
-  const searchDefault = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
-
-  const currentTheLoaiLabel = useMemo(() => {
-    if (pathname !== "/stories") return "";
-    if (!currentTheLoai) return "Tất cả";
+/** Không dùng hook: làm fallback của Suspense để HTML tĩnh (ISR) vẫn có đủ link thể loại. */
+export function SiteHeaderControlsView({ genres, pathname, currentTheLoai, searchDefault }: SiteHeaderControlsViewProps) {
+  let currentTheLoaiLabel = "";
+  if (pathname === "/stories") {
     try {
-      return decodeURIComponent(currentTheLoai);
+      currentTheLoaiLabel = currentTheLoai ? decodeURIComponent(currentTheLoai) : "Tất cả";
     } catch {
-      return currentTheLoai;
+      currentTheLoaiLabel = currentTheLoai;
     }
-  }, [pathname, currentTheLoai]);
+  }
 
   const chipClass = (active: boolean) =>
     `rounded-full border px-3 py-1.5 text-xs font-medium transition sm:text-sm ${
@@ -61,7 +73,8 @@ export function SiteHeaderControls({ genres }: { genres: string[] }) {
             {genres.map((name) => {
               const active =
                 pathname === "/stories" &&
-                decodeURIComponent(currentTheLoai).toLowerCase() === name.toLowerCase();
+                Boolean(currentTheLoai) &&
+                currentTheLoaiLabel.toLowerCase() === name.toLowerCase();
               return (
                 <Link
                   key={name}

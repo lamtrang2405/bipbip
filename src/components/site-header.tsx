@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { SiteHeaderControls } from "@/components/site-header-controls";
+import { SiteHeaderControls, SiteHeaderControlsView } from "@/components/site-header-controls";
 import { listVisibleTagNames } from "@/lib/taxonomy";
 
 export async function SiteHeader() {
@@ -21,7 +21,7 @@ export async function SiteHeader() {
             </span>
           </Link>
         </div>
-        <Suspense fallback={<div className="h-10" />}>
+        <Suspense fallback={<SiteHeaderControlsView genres={genres} pathname="" currentTheLoai="" searchDefault="" />}>
           <SiteHeaderControls genres={genres} />
         </Suspense>
       </div>

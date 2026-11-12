@@ -2,7 +2,7 @@ import { MEOKAMMAP_THE_LOAI } from "@/lib/meokammap-genres";
 import { isSchemaMissingError } from "@/lib/repository-supabase";
 import { slugify } from "@/lib/slugify";
 import { isSupabaseCmsEnabled } from "@/lib/supabase/cms-config";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublicClient } from "@/lib/supabase/server";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { TaxonomyItem } from "@/types/story";
 
@@ -75,7 +75,7 @@ export async function listTaxonomy(kind: TaxonomyKind): Promise<TaxonomyList> {
 export async function listVisibleTagNames(): Promise<string[]> {
   const fallback = [...MEOKAMMAP_THE_LOAI];
   if (!isSupabaseCmsEnabled()) return fallback;
-  const client = await getSupabaseServerClient();
+  const client = getSupabasePublicClient();
   if (!client) return fallback;
   const { data, error } = await client
     .from("tags")
@@ -89,7 +89,7 @@ export async function listVisibleTagNames(): Promise<string[]> {
 
 export async function listVisibleCategoryNames(): Promise<string[] | null> {
   if (!isSupabaseCmsEnabled()) return null;
-  const client = await getSupabaseServerClient();
+  const client = getSupabasePublicClient();
   if (!client) return null;
   const { data, error } = await client
     .from("categories")
